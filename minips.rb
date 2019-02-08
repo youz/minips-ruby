@@ -24,6 +24,11 @@ module MiniPS
     end
     module_function :deg2rad
 
+    def rad2deg(r)
+      180 * r / Math::PI
+    end
+    module_function :rad2deg
+
     def color_to_hex(c)
       r = (c[0] * 255).to_i
       g = (c[1] * 255).to_i
@@ -801,20 +806,25 @@ module MiniPS
   }
   define_op("sin"){|vm|
     a = vm.pop_op(:numeric)
-    vm.push_op(Num.new(Math.sin(a.value)))
+    vm.push_op(Num.new(Math.sin(deg2rad(a.value))))
   }
   define_op("cos"){|vm|
     a = vm.pop_op(:numeric)
-    vm.push_op(Num.new(Math.cos(a.value)))
+    vm.push_op(Num.new(Math.cos(deg2rad(a.value))))
+  }
+  define_op("tan"){|vm|
+    a = vm.pop_op(:numeric)
+    vm.push_op(Num.new(Math.tan(deg2rad(a.value))))
   }
   define_op("atan"){|vm|
     d = vm.pop_op(:numeric)
     n = vm.pop_op(:numeric)
-    vm.push_op(Num.new(Math.atan2(n.value, d.value)))
+    vm.push_op(Num.new(rad2deg(Math.atan2(n.value, d.value)) % 360))
   }
   define_op("exp"){|vm|
-    a = vm.pop_op(:numeric)
-    vm.push_op(Num.new(Math.exp(a.value)))
+    e = vm.pop_op(:numeric)
+    b = vm.pop_op(:numeric)
+    vm.push_op(Num.new(b.value ** e.value))
   }
   define_op("ln"){|vm|
     a = vm.pop_op(:numeric)

@@ -1,0 +1,19 @@
+%!
+%%BoundingBox: 0 0 540 540
+
+0 0.4 0.8 setrgbcolor
+
+/k {
+ 1 add
+ dup 5 eq {
+   5 0 rlineto 5 0 translate
+ }
+ {
+   [0 60 240 240 120 120 300] { rotate dup k } forall
+ } ifelse
+ pop
+} def
+
+50 150 moveto
+3 {0 k 120 rotate} repeat
+closepath stroke

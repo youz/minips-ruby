@@ -219,37 +219,71 @@ class TestVM < Test::Unit::TestCase
 
   class TestNumOperators < TestVM
     setup
-    def test_binop
+    def test_binary_op
       @vm.eval_string("/x 12 def /y 5 def")
-      [["add", 17],
-      ["sub", 7],
-      ["mul", 60],
-      ["div", 2.4],
-      ["idiv", 2],
-      ["mod", 2],
-      ["lt", false],
-      ["gt", true],
-      ["eq", false]].each{|op, expect|
+      [
+        ["add", 17],
+        ["sub", 7],
+        ["mul", 60],
+        ["div", 2.4],
+        ["idiv", 2],
+        ["mod", 2],
+        ["lt", false],
+        ["gt", true],
+        ["eq", false]
+      ].each{|op, expect|
         @vm.eval_string("x y #{op}")
         assert_equal(expect, @vm.pop_op.value)
       }
     end
 
-    def test_anaryop
-      [["1 abs", 1],
-      ["-1 abs", 1],
-      ["5 neg", -5],
-      ["-5 neg", 5],
-      ["2.5 ceiling", 3.0],
-      ["2.5 floor", 2.0],
-      ["-1.8 floor", -2.0],
-      ["2.2 round", 2.0],
-      ["2.5 round", 3.0],
-      ["2.7 round", 3.0],
-      ["3.5 round", 4.0],
-      ["2.5 truncate", 2.0],
-      ["-2.5 truncate", -2.0],
-      ["9 sqrt", 3.0]].each{|code, expect|
+    def test_unary_op
+      [
+        ["1 abs", 1],
+        ["-1 abs", 1],
+        ["5 neg", -5],
+        ["-5 neg", 5],
+        ["2.5 ceiling", 3.0],
+        ["2.5 floor", 2.0],
+        ["-1.8 floor", -2.0],
+        ["2.2 round", 2.0],
+        ["2.5 round", 3.0],
+        ["2.7 round", 3.0],
+        ["3.5 round", 4.0],
+        ["2.5 truncate", 2.0],
+        ["-2.5 truncate", -2.0]
+      ].each{|code, expect|
+        @vm.eval_string(code)
+        assert_equal(expect, @vm.pop_op.value)
+      }
+    end
+
+    def test_math_op
+      [
+        ["9 sqrt", 3.0],
+        ["3 4 exp", 81.0],
+        ["#{Math::E.to_s} ln", 1.0],
+        ["1000 log", 3.0]
+      ].each{|code, expect|
+        @vm.eval_string(code)
+        assert_equal(expect, @vm.pop_op.value)
+      }
+    end
+
+    def test_trig_op
+      %w(sin cos tan).each{|op|
+        12.times{|i|
+          t = MiniPS::Util.deg2rad(i * 30)
+          @vm.eval_string("#{i * 30} #{op}")
+          assert_equal(Math.send(op, t), @vm.pop_op.value)
+        }
+      }
+      [
+        ["0 1 atan", 0.0],
+        ["1 0 atan", 90.0],
+        ["0 -1 atan", 180.0],
+        ["-1 0 atan", 270.0]
+      ].each{|code, expect|
         @vm.eval_string(code)
         assert_equal(expect, @vm.pop_op.value)
       }

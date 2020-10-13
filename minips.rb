@@ -1560,12 +1560,18 @@ if $0 == __FILE__
       opts[:interactive] = true
     when "-s"
       opts[:step] = true
+    when "-h"
+      opts[:help] = true
     else
       $stderr.puts "[warn] unknown switch #{-sw}"
     end
   end
-  if $*.size == 0 && !opts[:interactive]
-    puts "usage: ruby minps.rb src.ps"
+  if opts[:help] || ($*.size == 0 && !opts[:interactive])
+    puts "usage: ruby minps.rb [options] [file.ps]"
+    puts "  -i     run REPL"
+    puts "  -s     step by step execution"
+    puts "  -h     show this message"
+    exit
   end
 
   if opts[:interactive]

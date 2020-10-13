@@ -4,7 +4,7 @@ require 'matrix'
 
 module MiniPS
   PRODUCT_NAME = "miniPS"
-  VERSION      = "0010"
+  VERSION      = "0011"
   DEFAULT_BBOX = "0 0 595 842"
 
   FONTMAP = {

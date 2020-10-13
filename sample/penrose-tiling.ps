@@ -1,0 +1,49 @@
+%!
+%%BoundingBox: 0 0 640 640
+
+/linecolor { 0 0.2 0.6 setrgbcolor } def
+/fillcolor { 0.8 0.9 1.0 setrgbcolor } def
+0.5 setlinewidth
+2 setlinejoin
+/n 8 def
+
+/invphi 2 5 sqrt 1 add div def
+/tan { dup sin exch cos div } def
+
+/divp {
+  4 dict begin
+  [/qy /qx /py /px] {exch def} forall
+  px 1 invphi sub mul qx invphi mul add
+  py 1 invphi sub mul qy invphi mul add
+  end
+} def
+
+/tiling {
+  12 dict begin
+  [/ry /rx /qy /qx /py /px /t] {exch def} forall
+  1 sub /n exch def
+  n 0 le {
+    px py moveto qx qy lineto rx ry lineto closepath
+    t 1 eq { gsave fillcolor fill grestore } if
+    linecolor stroke
+  }
+  {
+    px py qx qy divp /uy exch def /ux exch def
+    px py rx ry divp /vy exch def /vx exch def
+    t 0 eq
+    {
+      n 1 rx ry ux uy px py tiling
+      n 0 rx ry ux uy qx qy tiling
+    }
+    {
+      n 1 vx vy ux uy px py tiling
+      n 0 vx vy ux uy qx qy tiling
+      n 1 rx ry vx vy qx qy tiling
+    } ifelse
+  } ifelse
+  end
+} def
+
+20 240 translate 36 rotate
+n 1 0 0 300 36 tan 300 mul 600 0 tiling
+n 1 0 0 300 -36 tan 300 mul 600 0 tiling

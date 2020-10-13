@@ -1,0 +1,20 @@
+%!
+%%BoundingBox: 0 0 400 400
+
+/n 4 def
+/p {
+  count n 2 mul le {
+    dup rotate
+    dup neg p
+    4 0 rlineto
+    dup p
+    4 0 rlineto
+    dup neg p
+    dup neg rotate
+  } if
+  pop
+} def
+40 40 moveto
+90 rotate
+-90 p
+stroke

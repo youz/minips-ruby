@@ -932,7 +932,7 @@ module MiniPS
   }
   define_op("charpath"){|vm| raise "not implemented"}
   define_op("setlinewidth"){|vm|
-    vm.set_linewidth(vm.pop_op(:numeric).value)
+    vm.gs.linewidth = vm.pop_op(:numeric).value
   }
   define_op("newpath"){|vm|
     vm.init_path
@@ -1263,14 +1263,6 @@ module MiniPS
 
     def set_font(fd)
       @gs.font = fd
-    end
-
-    def linewidth
-      @gs.linewidth
-    end
-
-    def set_linewidth(w)
-      @gs.linewidth = w
     end
 
     def point

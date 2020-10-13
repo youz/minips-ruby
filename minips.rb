@@ -934,6 +934,33 @@ module MiniPS
   define_op("setlinewidth"){|vm|
     vm.gs.linewidth = vm.pop_op(:numeric).value
   }
+  define_op("currentlinewidth"){|vm|
+    vm.push_op(Num.new(vm.gs.linewidth))
+  }
+  define_op("setlinecap"){|vm|
+    linejoin = vm.pop_op(:numeric).value
+    case linejoin
+    when 0, 1, 2
+      vm.gs.linecap = linecap
+    else
+      raise "range error"
+    end
+  }
+  define_op("currentlinecap"){|vm|
+    vm.push_op(Num.new(vm.gs.linecap))
+  }
+  define_op("setlinejoin"){|vm|
+    linejoin = vm.pop_op(:numeric).value
+    case linejoin
+    when 0, 1, 2
+      vm.gs.linejoin = linejoin
+    else
+      raise "range error"
+    end
+  }
+  define_op("currentlinejoin"){|vm|
+    vm.push_op(Num.new(vm.gs.linejoin))
+  }
   define_op("newpath"){|vm|
     vm.init_path
   }
@@ -1029,7 +1056,7 @@ module MiniPS
     vm.init_path
   }
   define_op("stroke"){|vm|
-    vm.add_painted(PathS.new(vm.color, vm.linewidth, vm.current_path))
+    vm.add_painted(PathS.new(vm.color, vm.gs.linewidth, vm.current_path, vm.gs.linecap, vm.gs.linejoin))
     vm.init_path
   }
 
@@ -1094,11 +1121,13 @@ module MiniPS
   end
   
   class PathS < Paint
-    attr_reader :path, :linewidth
-    def initialize(color, linewidth, path)
+    attr_reader :path, :linewidth, :linecap, :linejoin
+    def initialize(color, linewidth, path, linecap, linejoin)
       super color
       @linewidth = linewidth
       @path = path
+      @linecap = linecap
+      @linejoin = linejoin
     end
   end
   
@@ -1116,7 +1145,7 @@ module MiniPS
 
 
   class GraphicsState
-    attr_accessor :color, :linewidth, :font, :current_path, :point, :ctm
+    attr_accessor :color, :linewidth, :font, :current_path, :point, :ctm, :linecap, :linejoin
     
     def initialize
       @color = [0, 0, 0]
@@ -1125,6 +1154,8 @@ module MiniPS
       @point = nil
       @ctm = Matrix[[1, 0, 0], [0, 1, 0], [0, 0, 1]]
       @current_path = []
+      @linecap = 0   # 0: Butt cap    1: Round cap   2: Projecting square cap
+      @linejoin = 0  # 0: Miter join  1: Round join  2: Bevel join
     end
 
     def dup
@@ -1500,7 +1531,13 @@ module MiniPS
             when PathF
               fo.puts('<path fill="#%s" fill-rule="%s" d="%s"/>' % [color_to_hex(e.color), e.fillrule, svgpath(e.path)])
             when PathS
-              fo.puts('<path fill="none" stroke="#%s" stroke-width="%s" d="%s"/>' % [color_to_hex(e.color), e.linewidth, svgpath(e.path)])
+              fo.puts('<path fill="none" stroke="#%s" stroke-width="%s" stroke-linecap="%s" stroke-linejoin="%s" d="%s"/>' % [
+                color_to_hex(e.color),
+                e.linewidth,
+                %w(butt round square)[e.linecap],
+                %w(miter round bevel)[e.linejoin],
+                svgpath(e.path)
+                ])
             when Text
               fontname = FONTMAP[e.fontname] || e.fontname
               fo.puts('<text x="%s" y="%s" fill="#%s" font-family="%s,sans-serif" font-size="%s">%s</text>' % [e.x, @h - e.y, color_to_hex(e.color), "'#{fontname}'", e.fontsize, e.text])
